@@ -10,6 +10,9 @@ import {
   GET_PRODUCT_ERROR,
   GET_PRODUCT_SUCESS,
   GET_PRODUCT_BEGIN,
+  GET_SINGLE_PRODUCT_ERROR,
+  GET_SINGLE_PRODUCT_SUCESS,
+  GET_SINGLE_PRODUCT_BEGIN
 } from "../action";
 
 const ProductContext = React.createContext();
@@ -20,7 +23,12 @@ let initalState = {
   product_error: false,
   products: [],
   features_product: [],
+  single_product_loading:false,
+  single_product_error:false,
+  single_product:{}
 };
+
+
 
 const ProductProvider = ({ children }) => {
   const [state, dispatch] = useReducer(productReducer, initalState);
@@ -40,18 +48,30 @@ try {
 console.log(data);
   dispatch({type:GET_PRODUCT_SUCESS,payload:data})
 } catch (error) {
-  console.log(error.response);
+
   dispatch({type:GET_PRODUCT_ERROR})
   
 }
-  };
+  }
+
+  const singleFetchData=async(url)=>{
+    try {
+      dispatch({type:GET_SINGLE_PRODUCT_BEGIN})
+       const response=await axios(url);
+       const singleProduct=response.data
+       console.log("haii",singleProduct,"hello");
+       dispatch({type: GET_SINGLE_PRODUCT_SUCESS ,payload:singleProduct})
+    } catch (error) {
+      dispatch({type:GET_SINGLE_PRODUCT_ERROR})
+    }
+  }
 
   useEffect(() => {
     fetchData();
   }, []);
 
   return (
-    <ProductContext.Provider value={{ ...state, sideBarOpen, sideBarClose }}>
+    <ProductContext.Provider value={{ ...state, sideBarOpen, sideBarClose,singleFetchData, }}>
       {children}
     </ProductContext.Provider>
   );
